@@ -34,6 +34,9 @@ const HomeScreen = () => {
     }
   };
 
+  const handleOpenGallery = () => {
+    console.log("Opening gallery...");
+  };
 
   if (!permission) {
     return <View style={styles.container} />;
@@ -56,7 +59,7 @@ const HomeScreen = () => {
     // PaperProvider is usually wrapped at the root (App.tsx), but included here for completeness
     <PaperProvider theme={MD3DarkTheme}>
       <SafeAreaView style={styles.container}>
-
+        {/* Top App Bar */}
         <Appbar.Header style={styles.appBar}>
           {/* <Appbar.Action icon="menu" onPress={() => { }} color="#fff" /> */}
           <Appbar.Content title="  Vision AI" titleStyle={styles.title} />

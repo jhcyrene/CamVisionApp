@@ -1,117 +1,121 @@
-import React from 'react';
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React from "react";
 import {
-  View,
   Image,
+  SafeAreaView,
   StyleSheet,
-  TouchableOpacity,
   Text,
-  SafeAreaView
-} from 'react-native';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { Appbar, MD3DarkTheme, Provider as PaperProvider } from "react-native-paper";
 
-// 1. Define the Navigation Stack Parameters
-// In a real app, this is often exported from a separate navigation types file.
-export type RootStackParamList = {
-  Preview: { photoUri?: string };
-  Result: { photoUri?: string };
-};
-
-// 2. Define the Props for this specific screen
-type Props = NativeStackScreenProps<RootStackParamList, 'Preview'>;
-
-const PreviewScreen = ({ route, navigation }: Props) => {
-  // Safely extract the photoUri from the route parameters
-  const { photoUri } = route.params || {};
+const PreviewScreen = () => {
+  // Safely extract photoUri from route parameters
+  const { photoUri } = useLocalSearchParams<{ photoUri?: string }>();
+  const router = useRouter();
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Image Container */}
-      <View style={styles.imageContainer}>
-        {photoUri ? (
-          <Image
-            source={{ uri: photoUri }}
-            style={styles.image}
-            resizeMode="contain"
-          />
-        ) : (
-          <Text style={styles.errorText}>No photo available to preview.</Text>
-        )}
-      </View>
+    <PaperProvider theme={MD3DarkTheme}>
+      <SafeAreaView style={styles.container}>
+        <Appbar.Header style={styles.appBar}>
+          {/* <Appbar.Action icon="menu" onPress={() => { }} color="#fff" /> */}
+          <Appbar.Content title="  Vision AI" titleStyle={styles.title} />
+          <Appbar.Action icon="cog" onPress={() => { }} color="#fff" />
+        </Appbar.Header>
 
-      {/* Action Buttons */}
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={[styles.button, styles.retakeButton]}
-          onPress={() => navigation.goBack()}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.buttonText}>Retake</Text>
-        </TouchableOpacity>
+        {/* Photo Preview */}
+        <View style={styles.imageContainer}>
+          {photoUri ? (
+            <Image
+              source={{ uri: photoUri }}
+              style={styles.image}
+              resizeMode="contain"
+            />
+          ) : (
+            <Text style={styles.errorText}>No photo to preview.</Text>
+          )}
+        </View>
 
-        <TouchableOpacity
-          style={[styles.button, styles.analyzeButton]}
-          onPress={() => navigation.navigate('Result', { photoUri })}
-=> navigation.navigate('Result', {photoUri})}
-        activeOpacity={0.8}
-        >
-        <Text style={styles.buttonText}>Analyze</Text>
-      </TouchableOpacity>
-    </View>
-    </SafeAreaView >
+        {/* Action Buttons */}
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={[styles.button, styles.retakeButton]}
+            onPress={() => router.back()}
+          >
+            <Text style={styles.buttonText}>Retake</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.button, styles.analyzeButton]}
+            onPress={() => router.push({ pathname: "/Result", params: { photoUri } })}
+          >
+            <Text style={styles.buttonText}>Analyze</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    </PaperProvider>
   );
 };
 
 const styles = StyleSheet.create({
+  appBar: {
+    backgroundColor: "transparent",
+    elevation: 0,
+  },
+  title: {
+    color: "#ffffff",
+    fontWeight: "bold",
+  },
   container: {
     flex: 1,
-    backgroundColor: '#000000', // Black background as requested
+    backgroundColor: "#000000", // Black background as requested
   },
   imageContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   image: {
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
   },
   buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    alignItems: 'center',
-    paddingVertical: 24,
-    paddingHorizontal: 16,
-    // Ensure it sits well above the bottom edge on de vices without physical home buttons
-    paddingBottom: 32,
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+    alignItems: "center",
+    paddingVertical: 20,
+    paddingHorizontal: 10,
+    // Add bottom margin if SafeAreaView isn't enough for modern devices
+    marginBottom: 10,
   },
   button: {
     paddingVertical: 14,
     paddingHorizontal: 32,
     borderRadius: 8,
     minWidth: 140,
-    alignItems: 'center',
-    elevation: 3, // Shadow for Android
-    shadowColor: '#000', // Shadow for iOS
+    alignItems: "center",
+    elevation: 2, // Minor shadow for Android
+    shadowColor: "#000", // Shadow for iOS
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
   },
   retakeButton: {
-    backgroundColor: '#6b7280', // Neutral Slate Grey
+    backgroundColor: "#555555", // Neutral grey
   },
   analyzeButton: {
-    backgroundColor: '#3b82f6', // Distinct Accent Blue
+    backgroundColor: "#007AFF", // Distinct accent color (iOS blue)
   },
   buttonText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: '600',
-    letterSpacing: 0.5,
+    fontWeight: "600",
   },
   errorText: {
-    color: '#9ca3af',
+    color: "#FFFFFF",
     fontSize: 16,
-  }
+  },
 });
 
 export default PreviewScreen;
