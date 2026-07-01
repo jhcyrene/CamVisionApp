@@ -30,7 +30,7 @@ const PreviewScreen = () => {
             <Image
               source={{ uri: photoUri }}
               style={styles.image}
-              resizeMode="contain"
+              resizeMode="cover"
             />
           ) : (
             <Text style={styles.errorText}>No photo to preview.</Text>
@@ -48,7 +48,7 @@ const PreviewScreen = () => {
 
           <TouchableOpacity
             style={[styles.button, styles.analyzeButton]}
-            onPress={() => router.push({ pathname: "/Result", params: { photoUri } })}
+            onPress={() => router.push({ pathname: "/result", params: { photoUri } })}
           >
             <Text style={styles.buttonText}>Analyze</Text>
           </TouchableOpacity>

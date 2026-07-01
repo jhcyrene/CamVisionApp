@@ -26,16 +26,12 @@ const HomeScreen = () => {
         });
         console.log("Photo captured:", photo?.uri);
         if (photo?.uri) {
-          router.push({ pathname: "/previewscreen", params: { photoUri: photo.uri } });
+          router.push({ pathname: "/PreviewScreen", params: { photoUri: photo.uri } });
         }
       } catch (error) {
         console.error("Failed to take picture:", error);
       }
     }
-  };
-
-  const handleOpenGallery = () => {
-    console.log("Opening gallery...");
   };
 
   if (!permission) {
@@ -137,8 +133,8 @@ const styles = StyleSheet.create({
   },
   focusFrame: {
     position: "absolute",
-    width: width * 0.7,
-    height: width * 0.7,
+    width: width * 0.8,
+    height: width * 1.0,
     borderWidth: 2,
     borderColor: "rgba(255, 255, 255, 0.5)",
     borderStyle: "dashed",
@@ -164,8 +160,8 @@ const styles = StyleSheet.create({
 
   },
   captureButton: {
-    width: 70,
-    height: 70,
+    width: 80,
+    height: 80,
     borderRadius: 35,
     backgroundColor: "rgba(255, 255, 255, 0.8)",
     justifyContent: "center",
