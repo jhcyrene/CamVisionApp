@@ -20,7 +20,7 @@ const PreviewScreen = () => {
       <SafeAreaView style={styles.container}>
         <Appbar.Header style={styles.appBar}>
           {/* <Appbar.Action icon="menu" onPress={() => { }} color="#fff" /> */}
-          <Appbar.Content title="  Vision AI" titleStyle={styles.title} />
+          <Appbar.Content title="  CamVision AI" titleStyle={styles.title} />
         </Appbar.Header>
 
         {/* Photo Preview */}
@@ -46,7 +46,10 @@ const PreviewScreen = () => {
               icon="school"
               onPress={() => router.push({ pathname: "/Result", params: { photoUri, promptKey: "academic" } })}
               style={styles.paperButton}
-              buttonColor="#007AFF"
+              contentStyle={styles.menuButtonContent}
+              labelStyle={styles.menuButtonLabel}
+              buttonColor="rgba(10, 132, 255, 0.15)"
+              textColor="#5e5ce6"
             >
               Academic
             </Button>
@@ -56,7 +59,10 @@ const PreviewScreen = () => {
               icon="shield-check"
               onPress={() => router.push({ pathname: "/Result", params: { photoUri, promptKey: "safety" } })}
               style={styles.paperButton}
-              buttonColor="#007AFF"
+              contentStyle={styles.menuButtonContent}
+              labelStyle={styles.menuButtonLabel}
+              buttonColor="rgba(48, 209, 88, 0.15)"
+              textColor="#30d158"
             >
               Safety
             </Button>
@@ -66,7 +72,10 @@ const PreviewScreen = () => {
               icon="clipboard-list"
               onPress={() => router.push({ pathname: "/Result", params: { photoUri, promptKey: "inventory" } })}
               style={styles.paperButton}
-              buttonColor="#007AFF"
+              contentStyle={styles.menuButtonContent}
+              labelStyle={styles.menuButtonLabel}
+              buttonColor="rgba(255, 159, 10, 0.15)"
+              textColor="#ff9f0a"
             >
               Inventory
             </Button>

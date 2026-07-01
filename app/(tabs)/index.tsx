@@ -70,7 +70,7 @@ const HomeScreen = () => {
         {/* Top App Bar */}
         <Appbar.Header style={styles.appBar}>
           {/* <Appbar.Action icon="menu" onPress={() => { }} color="#fff" /> */}
-          <Appbar.Content title="  Vision AI" titleStyle={styles.title} />
+          <Appbar.Content title="  CamVision AI" titleStyle={styles.title} />
         </Appbar.Header>
 
         {/* Camera Viewport Area */}
