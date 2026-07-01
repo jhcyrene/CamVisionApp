@@ -1,98 +1,187 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { CameraView, useCameraPermissions } from "expo-camera";
+import { useRouter } from "expo-router";
+import React, { useRef } from "react";
+import { Dimensions, SafeAreaView, StyleSheet, TouchableOpacity, View } from "react-native";
+import {
+  Appbar,
+  Button,
+  IconButton,
+  MD3DarkTheme,
+  Provider as PaperProvider,
+  Text
+} from "react-native-paper";
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+const { width } = Dimensions.get("window");
 
-export default function HomeScreen() {
+const HomeScreen = () => {
+  const [permission, requestPermission] = useCameraPermissions();
+  const cameraRef = useRef<CameraView>(null);
+  const router = useRouter();
+
+  const handleCapture = async () => {
+    if (cameraRef.current) {
+      try {
+        const photo = await cameraRef.current.takePictureAsync({
+          quality: 0.7,
+        });
+        console.log("Photo captured:", photo?.uri);
+        if (photo?.uri) {
+          router.push({ pathname: "/previewscreen", params: { photoUri: photo.uri } });
+        }
+      } catch (error) {
+        console.error("Failed to take picture:", error);
+      }
+    }
+  };
+
+
+  if (!permission) {
+    return <View style={styles.container} />;
+  }
+
+  if (!permission.granted) {
+    return (
+      <View style={styles.permissionContainer}>
+        <Text style={styles.permissionText}>
+          We need your permission to use the camera
+        </Text>
+        <Button mode="contained" onPress={requestPermission}>
+          Grant Permission
+        </Button>
+      </View>
+    );
+  }
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+    // PaperProvider is usually wrapped at the root (App.tsx), but included here for completeness
+    <PaperProvider theme={MD3DarkTheme}>
+      <SafeAreaView style={styles.container}>
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+        <Appbar.Header style={styles.appBar}>
+          {/* <Appbar.Action icon="menu" onPress={() => { }} color="#fff" /> */}
+          <Appbar.Content title="  Vision AI" titleStyle={styles.title} />
+          <Appbar.Action icon="cog" onPress={() => { }} color="#fff" />
+        </Appbar.Header>
+
+        {/* Camera Viewport Area */}
+        <View style={styles.cameraViewport}>
+          <CameraView style={StyleSheet.absoluteFillObject} facing="back" ref={cameraRef}>
+            {/* Overlay Container with Capture Button */}
+            <View style={styles.overlay}>
+              <IconButton style={{ marginLeft: 30 }} />
+              <TouchableOpacity style={styles.captureButton} onPress={handleCapture}>
+                <Text style={styles.captureText}>Capture</Text>
+              </TouchableOpacity>
+              <IconButton style={{ marginLeft: 10 }}
+                icon="flash"
+                iconColor="#fff"
+                size={32}
+                onPress={() => console.log("Toggle flash")}
+              />
+            </View>
+          </CameraView>
+
+          <Text variant="bodySmall" style={styles.subText}>
+            Align object within the frame
+          </Text>
+
+          {/* Faux Framing Guide */}
+          <View style={styles.focusFrame} />
+
+        </View>
+
+      </SafeAreaView>
+    </PaperProvider>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
+    backgroundColor: "#000000",
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  permissionContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#000000",
+    padding: 20,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  permissionText: {
+    color: "#ffffff",
+    textAlign: "center",
+    marginBottom: 20,
+    fontSize: 16,
+  },
+  appBar: {
+    backgroundColor: "transparent",
+    elevation: 0,
+  },
+  title: {
+    color: "#ffffff",
+    fontWeight: "bold",
+  },
+  cameraViewport: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#1c1c1c",
+    borderRadius: 16,
+    marginHorizontal: 16,
+    marginVertical: 8,
+    position: "relative",
+    overflow: "hidden",
+  },
+  focusFrame: {
+    position: "absolute",
+    width: width * 0.7,
+    height: width * 0.7,
+    borderWidth: 2,
+    borderColor: "rgba(255, 255, 255, 0.5)",
+    borderStyle: "dashed",
+    borderRadius: 12,
+  },
+  subText: {
+    color: "#ffffff",
+    position: "absolute",
+    top: 20, // Moved to the top so it doesn't overlap with the capture button
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+  },
+  overlay: {
+    position: "absolute",
+    bottom: 20,
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "space-evenly",
+    zIndex: 10,
+    flexDirection: "row",
+
+  },
+  captureButton: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 4,
+    borderColor: "white",
+  },
+  captureText: {
+    color: "#000",
+    fontWeight: "bold",
+    fontSize: 12,
+  },
+  controlsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between", // Spread evenly
+    alignItems: "center",
+    paddingVertical: 20,
+    paddingHorizontal: 40, // Increased padding
   },
 });
+
+export default HomeScreen;
