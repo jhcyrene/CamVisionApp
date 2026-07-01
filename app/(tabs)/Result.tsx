@@ -51,7 +51,7 @@ export default function ResultScreen() {
                     const parsed = JSON.parse(cleanText);
                     setResultData(parsed);
                 } catch (e) {
-                    console.log("Failed to parse JSON, falling back to raw object", e);
+                    // console.log("Failed to parse JSON, falling back to raw object", e);
                     setResultData({ raw: text });
                 }
 
@@ -125,7 +125,7 @@ export default function ResultScreen() {
                                                         </View>
                                                     )
                                                 ) : (
-                                                    <Text style={styles.cardText}>{resultData.objects ? resultData.objects : "No object detected"}</Text>
+                                                    <Text style={styles.tagText}>{resultData.objects ? resultData.objects : "No object detected"}</Text>
                                                 )}
                                             </View>
                                         </Card.Content>
