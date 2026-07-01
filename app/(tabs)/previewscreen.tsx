@@ -3,12 +3,12 @@ import React from "react";
 import {
   Image,
   SafeAreaView,
+  ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
-  View,
+  View
 } from "react-native";
-import { Appbar, MD3DarkTheme, Provider as PaperProvider } from "react-native-paper";
+import { Appbar, Button, MD3DarkTheme, Provider as PaperProvider } from "react-native-paper";
 
 const PreviewScreen = () => {
   // Safely extract photoUri from route parameters
@@ -21,7 +21,6 @@ const PreviewScreen = () => {
         <Appbar.Header style={styles.appBar}>
           {/* <Appbar.Action icon="menu" onPress={() => { }} color="#fff" /> */}
           <Appbar.Content title="  Vision AI" titleStyle={styles.title} />
-          <Appbar.Action icon="cog" onPress={() => { }} color="#fff" />
         </Appbar.Header>
 
         {/* Photo Preview */}
@@ -37,21 +36,51 @@ const PreviewScreen = () => {
           )}
         </View>
 
-        {/* Action Buttons */}
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={[styles.button, styles.retakeButton]}
-            onPress={() => router.back()}
-          >
-            <Text style={styles.buttonText}>Retake</Text>
-          </TouchableOpacity>
+        {/* Action Buttons (Modern Bottom Panel) */}
+        <View style={styles.bottomPanel}>
+          <Text style={styles.panelTitle}>Select Analysis Type</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
 
-          <TouchableOpacity
-            style={[styles.button, styles.analyzeButton]}
-            onPress={() => router.push({ pathname: "/result", params: { photoUri } })}
+            <Button
+              mode="contained"
+              icon="school"
+              onPress={() => router.push({ pathname: "/Result", params: { photoUri, promptKey: "academic" } })}
+              style={styles.paperButton}
+              buttonColor="#007AFF"
+            >
+              Academic
+            </Button>
+
+            <Button
+              mode="contained"
+              icon="shield-check"
+              onPress={() => router.push({ pathname: "/Result", params: { photoUri, promptKey: "safety" } })}
+              style={styles.paperButton}
+              buttonColor="#007AFF"
+            >
+              Safety
+            </Button>
+
+            <Button
+              mode="contained"
+              icon="clipboard-list"
+              onPress={() => router.push({ pathname: "/Result", params: { photoUri, promptKey: "inventory" } })}
+              style={styles.paperButton}
+              buttonColor="#007AFF"
+            >
+              Inventory
+            </Button>
+          </ScrollView>
+
+          <Button
+            mode="outlined"
+            icon="camera-retake"
+            onPress={() => router.back()}
+            style={styles.retakeButtonOutlined}
+            textColor="#FFFFFF"
           >
-            <Text style={styles.buttonText}>Analyze</Text>
-          </TouchableOpacity>
+            Retake Photo
+          </Button>
         </View>
       </SafeAreaView>
     </PaperProvider>
@@ -80,37 +109,45 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
   },
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-evenly",
-    alignItems: "center",
+  bottomPanel: {
+    position: "absolute",
+    bottom: 0,
+    width: "100%",
+    zIndex: 10,
     paddingVertical: 20,
-    paddingHorizontal: 10,
-    // Add bottom margin if SafeAreaView isn't enough for modern devices
-    marginBottom: 10,
+    paddingBottom: 40,
+    backgroundColor: "rgba(20, 20, 22, 0.85)", // Sleek translucent dark panel
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 10,
   },
-  button: {
-    paddingVertical: 14,
-    paddingHorizontal: 32,
-    borderRadius: 8,
-    minWidth: 140,
-    alignItems: "center",
-    elevation: 2, // Minor shadow for Android
-    shadowColor: "#000", // Shadow for iOS
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-  },
-  retakeButton: {
-    backgroundColor: "#555555", // Neutral grey
-  },
-  analyzeButton: {
-    backgroundColor: "#007AFF", // Distinct accent color (iOS blue)
-  },
-  buttonText: {
-    color: "#FFFFFF",
-    fontSize: 16,
+  panelTitle: {
+    color: "#a0a0a5",
+    fontSize: 14,
     fontWeight: "600",
+    textTransform: "uppercase",
+    letterSpacing: 1.2,
+    marginBottom: 16,
+    paddingHorizontal: 24,
+  },
+  scrollContent: {
+    paddingHorizontal: 20,
+    gap: 12, // Space between buttons
+    alignItems: "center",
+  },
+  paperButton: {
+    borderRadius: 12,
+  },
+  retakeButtonOutlined: {
+    borderRadius: 12,
+    borderColor: "#ffffff",
+    borderWidth: 1,
+    marginTop: 20,
+    marginHorizontal: 20,
   },
   errorText: {
     color: "#FFFFFF",

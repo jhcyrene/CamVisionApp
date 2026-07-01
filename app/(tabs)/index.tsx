@@ -1,7 +1,7 @@
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useRouter } from "expo-router";
-import React, { useRef } from "react";
-import { Dimensions, SafeAreaView, StyleSheet, TouchableOpacity, View } from "react-native";
+import React, { useRef, useState } from "react";
+import { Dimensions, SafeAreaView, StyleSheet, TouchableOpacity, View, Pressable } from "react-native";
 import {
   Appbar,
   Button,
@@ -15,6 +15,8 @@ const { width } = Dimensions.get("window");
 
 const HomeScreen = () => {
   const [permission, requestPermission] = useCameraPermissions();
+  const [flashMode, setFlashMode] = useState<'off' | 'on'>('off');
+  const [focusPoint, setFocusPoint] = useState<{ x: number, y: number } | null>(null);
   const cameraRef = useRef<CameraView>(null);
   const router = useRouter();
 
@@ -22,7 +24,7 @@ const HomeScreen = () => {
     if (cameraRef.current) {
       try {
         const photo = await cameraRef.current.takePictureAsync({
-          quality: 0.7,
+          quality: 0.5,
         });
         console.log("Photo captured:", photo?.uri);
         if (photo?.uri) {
@@ -32,6 +34,16 @@ const HomeScreen = () => {
         console.error("Failed to take picture:", error);
       }
     }
+  };
+
+  const handleFocus = (event: any) => {
+    const { locationX, locationY } = event.nativeEvent;
+    setFocusPoint({ x: locationX, y: locationY });
+
+    // Hide the focus square after 1.5 seconds
+    setTimeout(() => {
+      setFocusPoint(null);
+    }, 1500);
   };
 
   if (!permission) {
@@ -59,34 +71,57 @@ const HomeScreen = () => {
         <Appbar.Header style={styles.appBar}>
           {/* <Appbar.Action icon="menu" onPress={() => { }} color="#fff" /> */}
           <Appbar.Content title="  Vision AI" titleStyle={styles.title} />
-          <Appbar.Action icon="cog" onPress={() => { }} color="#fff" />
         </Appbar.Header>
 
         {/* Camera Viewport Area */}
         <View style={styles.cameraViewport}>
-          <CameraView style={StyleSheet.absoluteFillObject} facing="back" ref={cameraRef}>
-            {/* Overlay Container with Capture Button */}
-            <View style={styles.overlay}>
-              <IconButton style={{ marginLeft: 30 }} />
-              <TouchableOpacity style={styles.captureButton} onPress={handleCapture}>
-                <Text style={styles.captureText}>Capture</Text>
-              </TouchableOpacity>
-              <IconButton style={{ marginLeft: 10 }}
-                icon="flash"
-                iconColor="#fff"
-                size={32}
-                onPress={() => console.log("Toggle flash")}
-              />
-            </View>
+          <CameraView
+            style={StyleSheet.absoluteFillObject}
+            facing="back"
+            ref={cameraRef}
+            enableTorch={flashMode === 'on'}
+            flash={flashMode}
+            autofocus="on"
+          >
           </CameraView>
+
+          {/* Invisible layer to capture taps for focusing */}
+          <Pressable style={StyleSheet.absoluteFillObject} onPress={handleFocus} />
+
+          {/* Render the focus square where tapped */}
+          {focusPoint && (
+            <View
+              style={[
+                styles.tapFocusFrame,
+                { top: focusPoint.y - 30, left: focusPoint.x - 30 }
+              ]}
+            />
+          )}
 
           <Text variant="bodySmall" style={styles.subText}>
             Align object within the frame
           </Text>
 
           {/* Faux Framing Guide */}
-          <View style={styles.focusFrame} />
+          <View style={styles.focusFrame} pointerEvents="none" />
 
+          {/* Bottom Control Bar */}
+          <View style={styles.bottomBar}>
+            {/* Empty space to balance the flash button on the right */}
+            <View style={{ width: 48, marginLeft: 20 }} />
+
+            <TouchableOpacity style={styles.captureButtonOuter} onPress={handleCapture}>
+              <View style={styles.captureButtonInner} />
+            </TouchableOpacity>
+
+            <IconButton
+              style={{ marginRight: 20 }}
+              icon={flashMode === 'on' ? "flash" : "flash-off"}
+              iconColor={flashMode === 'on' ? "#FFD700" : "#ffffff"}
+              size={32}
+              onPress={() => setFlashMode(prev => prev === 'off' ? 'on' : 'off')}
+            />
+          </View>
         </View>
 
       </SafeAreaView>
@@ -136,50 +171,53 @@ const styles = StyleSheet.create({
     width: width * 0.8,
     height: width * 1.0,
     borderWidth: 2,
-    borderColor: "rgba(255, 255, 255, 0.5)",
+    borderColor: "rgba(255, 255, 255, 0.3)",
     borderStyle: "dashed",
     borderRadius: 12,
+  },
+  tapFocusFrame: {
+    position: "absolute",
+    width: 60,
+    height: 60,
+    borderWidth: 1.5,
+    borderColor: "#FFCC00", // Yellow focus box
+    backgroundColor: "transparent",
   },
   subText: {
     color: "#ffffff",
     position: "absolute",
-    top: 20, // Moved to the top so it doesn't overlap with the capture button
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
+    top: 20,
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    fontWeight: "600",
+    overflow: "hidden",
   },
-  overlay: {
+  bottomBar: {
     position: "absolute",
-    bottom: 20,
+    bottom: 0,
     width: "100%",
-    alignItems: "center",
-    justifyContent: "space-evenly",
-    zIndex: 10,
+    paddingVertical: 30,
     flexDirection: "row",
-
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
-  captureButton: {
-    width: 80,
-    height: 80,
-    borderRadius: 35,
-    backgroundColor: "rgba(255, 255, 255, 0.8)",
+  captureButtonOuter: {
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    borderWidth: 4,
+    borderColor: "rgba(255, 255, 255, 0.8)",
     justifyContent: "center",
     alignItems: "center",
-    borderWidth: 4,
-    borderColor: "white",
   },
-  captureText: {
-    color: "#000",
-    fontWeight: "bold",
-    fontSize: 12,
-  },
-  controlsContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between", // Spread evenly
-    alignItems: "center",
-    paddingVertical: 20,
-    paddingHorizontal: 40, // Increased padding
+  captureButtonInner: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "#ffffff",
   },
 });
 
